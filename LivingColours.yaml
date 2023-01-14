@@ -1,0 +1,29 @@
+light:
+  - platform: rgb
+    name: "LivingColor"
+    red: red
+    green: green
+    blue: blue
+    on_turn_on:
+      then:
+        switch.turn_on: power_supply_id
+    on_turn_off:
+      then:
+        switch.turn_off: power_supply_id        
+
+output:
+  - platform: ledc
+    pin: GPIO19
+    id: red
+  - platform: ledc
+    pin: GPIO21
+    id: green
+  - platform: ledc
+    pin: GPIO22
+    id: blue  
+
+switch:
+  - platform: gpio
+    id: power_supply_id
+    pin: 25
+    
