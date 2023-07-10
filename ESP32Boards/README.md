@@ -26,7 +26,8 @@ V2 -   ESP32-S3 BASED (can use both S3-WROOM-1U & S3-WROOM-1 modules)
           3. 2 pin into buck converter  5-24v
         3x3 matrix of 2020 WS2812 LED's
         2x LDO,   1 for just the ESP32 S3,  other for everything else so could be 5v if wanted (not with LIS3H though).  Can be joined so only 1 needs to be populated
-        LIS3H  https://www.st.com/resource/en/datasheet/lis3dh.pdf
+        LIS3DH  MEMS digital output motion sensor / ultra-low-power high-performance 3-axis "nano" accelerometer   https://www.st.com/resource/en/datasheet/lis3dh.pdf
+        **  Recommend getting a stencil for this one.   lots of small components/pins (on the LIS3dh)
 
 
 Files in these directories supplied with no warranty whatsoever.  They are just backups of boards I have created,  V2 has interactive BOM,  Files work in KiCad 7,   zip files supplied which is what I sent to JLCPCB to have produced.   They are single boards only, panelized within JLCPCB web interface.
