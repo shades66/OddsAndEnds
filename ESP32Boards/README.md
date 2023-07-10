@@ -1,5 +1,6 @@
+(Best viewed as raw to get the formatting.  broke when I created it :(  )
 
-Some of the boards I've been making for use a base boards for various Home Assistant & Other odds and ends
+ Some of the boards I've been making for use a base boards for various Home Assistant & Other odds and ends
 
 Folders are
 
