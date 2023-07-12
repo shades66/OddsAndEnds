@@ -1,7 +1,7 @@
 esphome:
   name: dev-rf-version2
-  includes:
-    - markisol.h  
+#  includes:
+#    - markisol.h  
 
 esp32:
   board: esp32dev
@@ -20,8 +20,8 @@ ota:
   password: "UPDATE OTA PASSWORD HERE"
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+  ssid: "WIFI SSID"
+  password: "WIFI PASSWORD"
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -44,19 +44,19 @@ binary_sensor:
   - platform: status
     name: Dev RF Bridge Status
 
-switch:
-  - platform: template
-    name: "Blind Down"
-    turn_on_action:
-      lambda: sendMarkisolCommand("10111011111011111000100010000011110110101");
-  - platform: template
-    name: "Blind Up"
-    turn_on_action:
-      lambda: sendMarkisolCommand("10111011111011111000001110000011110101011");           
-  - platform: template
-    name: "Blind Stop"
-    turn_on_action:
-      lambda: sendMarkisolCommand("10111011111011111000101010000011110110001"); 
+#switch:
+#  - platform: template
+#    name: "Blind Down"
+#    turn_on_action:
+#      lambda: sendMarkisolCommand("10111011111011111000100010000011110110101");
+#  - platform: template
+#    name: "Blind Up"
+#    turn_on_action:
+#      lambda: sendMarkisolCommand("10111011111011111000001110000011110101011");           
+#  - platform: template
+#    name: "Blind Stop"
+#    turn_on_action:
+#      lambda: sendMarkisolCommand("10111011111011111000101010000011110110001"); 
                   
   - platform: template
     name: "Fan On"
@@ -95,7 +95,7 @@ switch:
           times: 10
           wait_time: 0ms              
 remote_receiver:
-  pin: 19
+  pin: 13
   dump: rc_switch
   tolerance: 50%
   filter: 30us
@@ -103,5 +103,5 @@ remote_receiver:
   buffer_size: 4kb
 
 remote_transmitter:
-  pin: 21
+  pin: 12
   carrier_duty_percent: 100%
