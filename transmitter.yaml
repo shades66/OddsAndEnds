@@ -11,7 +11,7 @@ esp32:
 # Enable logging
 logger:
 
-# Enable Home Assistant API
+# Enable Home Assistant API (copy the api & ota part from the initial code shown when you create a new esphome device)
 api:
   encryption:
     key: "UPDATE YOUR API KEY HERE"
@@ -20,8 +20,8 @@ ota:
   password: "UPDATE OTA PASSWORD HERE"
 
 wifi:
-  ssid: "WIFI SSID"
-  password: "WIFI PASSWORD"
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
