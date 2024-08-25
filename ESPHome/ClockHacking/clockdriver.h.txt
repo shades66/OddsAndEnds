@@ -1,0 +1,160 @@
+#include "esphome.h"
+
+class MyClock : public Component {
+ public:
+ 
+#define CLK     15
+#define LE      14
+#define SDO     5  
+
+#define NUMPIXELS 96
+#define DELAYVAL  50
+bool screen[NUMPIXELS];
+
+int screen_hour_1[8]={7,77,76,78,75,74,72,71};
+int screen_hour_2[8]={7,65,79,66,64,73,69,70};
+int screen_min_1[8]={7,62,61,56,60,59,57,58};
+int screen_min_2[8]={7,49,55,50,53,54,51,52};
+int screen_alarms[2]={36,35};
+int screen_hum_1[8]={7,20,38,19,18,39,17,16};
+int screen_hum_2[8]={7,3,21,2,1,22,0,23};
+int screen_hum_per[1]={7};
+int screen_temp_1[3]={2,44,45};
+int screen_temp_2[8]={7,40,41,29,28,42,27,43};
+int screen_temp_3[8]={7,15,25,14,13,26,12,11};
+int screen_temp_ranges[2]={8,9};
+int screen_days[7][2]={{86,87},{95,94},{93,92},{91,90},{89,88},{83,82},{85,84}};
+
+int one[3]={2,2,5};
+int two[6]={5,0,2,3,4,6};
+int three[6]={5,0,2,3,5,6};
+int four[5]={4,1,2,3,5};
+int five[6]={5,0,1,3,5,6};
+int six[7]={6,0,1,3,4,5,6};
+int seven[4]={3,0,2,5};
+int eight[8]={7,0,1,2,3,4,5,6};
+int nine[7]={6,0,1,2,3,5,6};
+int zero[7]={6,0,1,2,4,5,6};
+
+void updateScreen() {
+  ESP_LOGD("custom", "Called updateScreen");
+  GPIO.out_w1tc = ((uint32_t)1 << CLK);
+  //digitalWrite(CLK,LOW);
+ for(int i=0; i<NUMPIXELS; i++) {
+  if (screen[i]) {
+    GPIO.out_w1ts = ((uint32_t)1 << SDO);
+    //digitalWrite(SDO,HIGH);
+  } else {
+    GPIO.out_w1tc = ((uint32_t)1 << SDO);
+    //digitalWrite(SDO,LOW);
+  }
+  GPIO.out_w1ts = ((uint32_t)1 << CLK);
+  GPIO.out_w1tc = ((uint32_t)1 << CLK);
+  //digitalWrite(CLK,HIGH); delay(1);
+  //digitalWrite(CLK,LOW); delay(1);
+}
+  GPIO.out_w1ts = ((uint32_t)1 << LE);
+  GPIO.out_w1tc = ((uint32_t)1 << LE);
+  //digitalWrite(LE,HIGH); delay(1);
+  //digitalWrite(LE,LOW); delay(1);
+}
+
+void setAll(int hh,int mm,int humidity,int temp,int day) {
+  for(int i=0; i<NUMPIXELS; i++) {
+    screen[i]=false;
+  }
+  screen[screen_temp_ranges[0]]=true;
+  screen[screen_hum_per[0]]=true;
+  int h1=hh / 10;
+  int h2=hh % 10;
+   setDigit(screen_hour_1,h1);
+   setDigit(screen_hour_2,h2);
+  updateScreen();
+  int m1=mm / 10;
+  int m2=mm % 10;
+  setDigit(screen_min_1,m1);
+  setDigit(screen_min_2,m2);
+  int hum1=humidity / 10;
+  int hum2=humidity % 10;
+  setDigit(screen_hum_1,hum1);
+  setDigit(screen_hum_2,hum2); 
+  int tem1=temp / 10;
+  int tem2=temp % 10;
+  setDigit(screen_temp_2,tem1);
+  setDigit(screen_temp_3,tem2); 
+    for (int i=0;i<7;i++) {
+        if (i==day) {
+               screen[screen_days[i][0]]=false;
+               screen[screen_days[i][1]]=true;
+        } else {
+               screen[screen_days[i][0]]=true;
+               screen[screen_days[i][1]]=false;
+        }
+    }
+      updateScreen();
+}
+  
+
+
+void setMinute(int m) {
+  int m1=m / 10;
+  int m2=m % 10;
+  setDigit(screen_min_1,m1);
+  setDigit(screen_min_2,m2);
+  updateScreen();
+  }
+
+void setHour(int m) {
+  int m1=m / 10;
+  int m2=m % 10;
+   setDigit(screen_hour_1,m1);
+   setDigit(screen_hour_2,m2);
+  updateScreen();
+  }
+  
+void setDigit(int *dig,int val) {
+ESP_LOGD("custom", "Called setDigit");
+  for(int i=0;i<dig[0];i++) {
+    screen[dig[i+1]]=false;
+  }
+  int *valdig=zero;
+  if (val==1) {valdig=one;} 
+  if (val==2) {valdig=two;} 
+  if (val==3) {valdig=three;} 
+  if (val==4) {valdig=four;} 
+  if (val==5) {valdig=five;} 
+  if (val==6) {valdig=six;} 
+  if (val==7) {valdig=seven;} 
+  if (val==8) {valdig=eight;} 
+  if (val==9) {valdig=nine;}
+  for(int i=0;i<valdig[0];i++) {
+    screen[dig[1+valdig[1+i]]]=true;
+  } 
+}
+
+  void setup() override {
+
+  pinMode(CLK,OUTPUT); digitalWrite(CLK,LOW);
+  pinMode(LE,OUTPUT);  digitalWrite(LE,LOW);
+  pinMode(SDO,OUTPUT); digitalWrite(SDO,LOW);
+// for(int i=0; i<NUMPIXELS; i++) {
+//    screen[i]=false;
+//}
+//   setDigit(screen_hour_1,1);
+//   setDigit(screen_hour_2,2);
+//   setDigit(screen_min_1,3);
+//   setDigit(screen_min_2,4);
+//   setDigit(screen_hum_1,5);
+//   setDigit(screen_hum_2,6);
+//   setDigit(screen_temp_2,7);
+//   setDigit(screen_temp_3,8);
+//   screen[screen_days[0][0]]=false;
+//   screen[screen_days[0][1]]=true;
+//   screen[screen_temp_ranges[0]]=true;
+//   screen[screen_hum_per[0]]=true;
+//   updateScreen();
+//   ESP_LOGD("custom", "Completed");
+  }
+  
+
+};

@@ -1,0 +1,105 @@
+esphome:
+  name: "bigclock"
+  friendly_name: "bigclock"
+  includes:
+    - clockdriver.h
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: arduino
+
+
+custom_component:
+- lambda: |-
+    auto my_custom = new MyClock();
+    App.register_component(my_custom);
+    return {my_custom};
+  components:
+  - id: myclock_id
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "xxx"
+
+ota:
+  - platform: esphome
+    password: "xxx"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Bigclock1 Fallback Hotspot"
+    password: "xxx"
+
+web_server:
+  port: 80
+  ota: true
+  include_internal: true
+  
+captive_portal:
+
+output:
+  - platform: ledc
+    pin: 6
+    id: gpio_6
+  - platform: ledc
+    pin: 9
+    id: gpio_9
+    inverted: True
+  - platform: ledc
+    ######################################################
+    # One buzzer leg connected to GPIO12, the other to GND
+    ######################################################
+    pin: 7
+    id: buzzer
+
+#sensor:
+#  - platform: adc
+#    pin: 4
+#    name: "ButtonTest"
+#    update_interval: 1s
+
+# Example usage in a light
+light:
+  - platform: monochromatic
+    output: gpio_6
+    name: "Clock Brightness"
+    restore_mode: RESTORE_DEFAULT_ON   
+  - platform: monochromatic
+    output: gpio_9
+    name: "Dots Brightness" 
+    id: dots
+    restore_mode: RESTORE_DEFAULT_ON   
+  - platform: monochromatic
+    output: buzzer
+    name: "Buzzer"   
+    restore_mode: RESTORE_DEFAULT_OFF
+
+sensor:
+  - platform: homeassistant
+    id: temp_den
+    entity_id: sensor.ewelink_th01_temperature
+  - platform: homeassistant
+    id: hum_den
+    entity_id: sensor.ewelink_th01_humidity
+
+# void setAll(int hh,int mm,int humidity,int temp,int day) {
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    # ...
+    on_time:
+      # Every second minutes
+      - seconds: 0-59
+        then:
+          - light.toggle: dots
+          - lambda: "int hour = id(homeassistant_time).now().hour; int min = id(homeassistant_time).now().minute; int day = id(homeassistant_time).now().day_of_week; int hum=(int) id(hum_den).state; int tem=(int) id(temp_den).state; MyClock().setAll(hour,min,hum,tem,day-1);"
+
