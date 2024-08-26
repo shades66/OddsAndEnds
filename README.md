@@ -8,3 +8,4 @@ Philips-LivingColours-GEN2.jpeg  - PCB from an old Philips LivingColours lamp wh
 
 LivingColours.yaml  - ESPHome config for the above circuit.  See pins defined for the connections I made on the PCB.  This setup is the basic rgb light config with two extras for on_turn_on/on_turn_off which switch the enable pin high/low.
 
+ESPHome/clockhacking - Hacking a cheap AliExpress clock to work via ESPHome.
