@@ -1,0 +1,108 @@
+Notes taken during investigation of how everything links together
+
+
+
+Outputs not used on shift registers
+-----------------------------------
+
+4,5,6,10,24,30,31,32,33,34,48,63,67,68,80    (15)
+
+possible some connect to Empty LED positions?
+
+
+Total LED's populated on the shift registers (shift register position on image, driven lowest bit first,  1=ON  0=OFF)
+ digits   58   (8 * 7 segments) + 2
+ others  9  (pm,DST, M , D , AL1 , AL2 , % , C, F)
+ days 14
+total 81 LEDs
+
++ 2 LEDs for : between HH & MM,  driven direct by CPU
+
+Empty LED positions
+------------------
+
+D117
+D118
+
+Buttons are a potential divider connected as follows
+----------------------------------------------------
+
+GND --- 47k resistor (R11) ---- CPUconnection ---- Buttons 1-4 --- Resistor 1-4 (R7,R9,R10,R8) --- VCC
+
+Resistor & buttons
+AL-AGM  47k  (473)  R7    approx. 2.5v at CPU Connection
+PLUS    100k (104)  R9    approx. 1.59v at CPU Connection
+MINUS   330K (334)  R10   approx. 0.62v at CPU Connection
+SET     2.2K (222)  R8    approx. 4.7v at CPU Connection
+
+changed R8 to 68k resistor which should make the set button return 2v at CPU Connection (not tested)
+
+no buttons pressed R11 pulls CPU Connection to GND.
+
+
+Shift Registers
+---------------
+
+TC5020  16 bit shift register.   See image & PDF for more.
+
+CPU outputs data through each chip  CPU -> A -> B -> C -> D -> E -> F
+clock/LE pins connect direct to each chip
+VCC appears to be connected before D33 chip?
+
+Resistor connected to REXT  3.3k
+OE/  pin appears to be tied to ground
+
+Temperature/Humidity
+--------------------
+
+I2C device
+
+Not tested/used but appears to be a AHT30 device.
+
+note pullups to 5v via R12/R13 - possible to remove & use ESP pullup?
+
+Buzzer
+------
+
+Driven via Q1.  appears to need PWM,   just clicks when driven by ESP as digital IO
+
+
+CPU pins
+--------
+
+1  PowerDetect - Looks to be used to detect when the power is connected to the DC jack
+2  SDO  -  Shift register Data Out
+3  Buttons  - analog value    AL = 2.5v  + = 1.599v  - = .623v  SET = 4.766k
+                  for 3v3 use changing the 222 resistor from 2.2k to 68k will give a reading around 2v
+4  IR - Not fitted but connects to O pin where an IR sensor can be fitted
+5  RTC Crystal - standard clock crystal connection
+6  RTC Crystal - standard clock crystal connection
+7  GND
+8  I2C pin.   TBC if data/clock  . R13 is pullup to 5v.  removed and using ESP pullup
+9  VCC
+10 I2C pin.   TBC if data/clock  . R12 is pullup to 5v.  removed and using ESP pullup
+
+11 Reset?  Held high by R27.
+12 DOTS.   The 2 LED's in the middle of the clock.   can be PWM driven
+13 Light sensor.   not looked into this yet.  assume analog signal
+14 LE - Shift out register to load the data
+15 CLK - Shift out register clock
+16 NC
+17 LED ENABLE.  Enable led power.  can be PWM driven to control brightness
+18 CLK For programming?  Connected to SMD pads on the back along with DAT/VCC/GND
+19 DAT For programming?  Connected to SMD pads on the back along with CLK/VCC/GND
+20 BUZZER.   appears to be PWM controlled.  Not tried yet
+
+Power
+-------
+
+J1  DC Jack
+R1/R2 - connected to CPU Pin 1.  Assuming for detecting when power connected
+D33 - Reverse polarity prevention?  (although R1/R2 before?)
+
+
+terminals.  battery connection for 2 AA.
+D139 - Battery -> VCC  (to stop power in J1 trying to charge batteries.
+D138 - from D33 ->  VCC
+
+
