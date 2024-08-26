@@ -1,5 +1,6 @@
 Notes taken during investigation of how everything links together
 
+Clock this is for from AliExpress   https://www.aliexpress.com/item/1005007143155381.html
 
 
 Outputs not used on shift registers
