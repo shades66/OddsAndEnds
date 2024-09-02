@@ -29,6 +29,13 @@ V2 -   ESP32-S3 BASED (can use both S3-WROOM-1U & S3-WROOM-1 modules)
         2x LDO,   1 for just the ESP32 S3,  other for everything else so could be 5v if wanted (not with LIS3H though).  Can be joined so only 1 needs to be populated
         LIS3DH  MEMS digital output motion sensor / ultra-low-power high-performance 3-axis "nano" accelerometer   https://www.st.com/resource/en/datasheet/lis3dh.pdf
         **  Recommend getting a stencil for this one.   lots of small components/pins (on the LIS3dh)
+  ESP32-Pico-V2-MiniPICO - ESP32 PICO V3 Based board for putting in tiny spaces
+        My first 4 layer board. and it appears to work....
+        2x3 connector for programming adapter
+        8 pin connector for power & 5 IO pins
+        Can be driven via 3.3v or 5v via LDO
+        Uses external antenna via IPEX socket.   not tuned at-all but works so far with values shown on bom/schematic.   Need to get a VNA to work out ideal values.
+
 
 
 Files in these directories supplied with no warranty whatsoever.  They are just backups of boards I have created,  V2 has interactive BOM,  Files work in KiCad 7,   zip files supplied which is what I sent to JLCPCB to have produced.   They are single boards only, panelized within JLCPCB web interface.
