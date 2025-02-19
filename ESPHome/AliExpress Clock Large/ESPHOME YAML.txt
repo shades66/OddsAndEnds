@@ -1,0 +1,106 @@
+esphome:
+  name: big-clock-green
+  friendly_name: big-clock-green
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "......."
+
+ota:
+  - platform: esphome
+    password: ".............."
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Big-Clock-Green Fallback Hotspot"
+    password: "..........."
+
+captive_portal:
+
+i2c:
+  sda: 26
+  scl: 27
+  scan: true
+
+i2c_device:
+  id: i2cdev
+  address: 0x42
+
+button:
+  - platform: template
+    name: "Template Button"
+    on_press:
+        - lambda: !lambda |-
+            id(i2cdev).write_byte(0x12, 0x01);   
+            id(i2cdev).write_byte(0x10, 0x0f); 
+            id(i2cdev).write_byte(0x11, 0x0f);
+            id(i2cdev).write_bytes(0x00, { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff });           
+            id(i2cdev).write_byte(0x12, 0x03);
+
+sensor:
+  - platform: homeassistant
+    id: temp_den
+    entity_id: sensor.ewelink_th01_temperature
+
+
+number:
+  - platform: template
+    id: bright_led
+    name: "Brightness"
+    mode: box
+    min_value: 0
+    max_value: 15
+    step: 1
+    optimistic: true
+    restore_value: true
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    # ...
+    on_time:
+      # Every second minutes
+      - seconds: 0-59
+        then:
+          - lambda: !lambda |- 
+              byte digit [] = { 219,130,213,199,142,79,95,194,223,207};
+              byte daw [] { 2,64,128,8,4,16,1 };
+              int c_minute=id(homeassistant_time).now().minute;
+              int c_hour=id(homeassistant_time).now().hour;
+              int c_temp=id(temp_den).state;
+              int c_mon=id(homeassistant_time).now().month;
+              int c_dom=id(homeassistant_time).now().day_of_month;
+              int c_dow=id(homeassistant_time).now().day_of_week - 1;
+              byte min1=digit[c_minute % 10];
+              byte min2=digit[c_minute / 10];
+              byte hour1=digit[c_hour % 10];
+              byte hour2=digit[c_hour / 10];
+              byte temp1=digit[c_temp % 10];
+              byte temp2=digit[c_temp / 10];  
+              byte dom1=digit[c_dom % 10] | 0x20;
+              byte dom2=digit[c_dom / 10] | 0x20;
+              byte day1=0;
+              byte day2=0;
+              for (int a=0;a<7;a++) { if (a==c_dow) { day1=day1 | daw[a]; }  else { day2=day2 | daw[a]; } };
+              byte dots=4;
+              byte mon1=digit[c_mon % 10] & 0xE7;
+              dots=dots | (digit[c_mon % 10] & 0x18);
+              if (c_mon>9) { mon1=mon1 | 0x18; };
+              if ((id(homeassistant_time).now().second % 2) ==1) { dots=dots+3; }
+              id(i2cdev).write_byte(0x10, id(bright_led).state); 
+              id(i2cdev).write_byte(0x11, 0x0f);
+              id(i2cdev).write_bytes(0x00, { mon1, dom1, dom2, min1, min2, min2, day1, day2, min1, hour2, dots , hour2, hour1, hour1, temp2, temp1 });           
+              id(i2cdev).write_byte(0x12, 0x03);
