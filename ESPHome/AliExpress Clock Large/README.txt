@@ -9,9 +9,15 @@ The description is
 
 This is a continuation of attempting to modify a cheap led clock from AliExpress to work via ESPHome for use in home assistant.  See the other clock up one directory for details of what I found there.
 
+Opening the clock
+-----------------
+The front black filter can be peeled off pretty easily once you manage to lift one of the corners using your nails or a very thin blade. Be very carefull pulling the screen off in one go as it snaps if bent too far away from the case..   Once removed there are 6 small screws which allow the front to be removed gaining access to the main PCB.
+
+See Image E
+
 I was expecting a similar PCB to the previous clock where it would be easy to identify the main pins in order to hack on an ESP32 chip to drive it.  Instead I found a pretty cheap one sided PCB with hundreds of SMD zero ohm resistors which allow tracks to jump over each other without physical links, along with 2 chips in the centre which helpfully had all identification removed... The larger chip is what is driving the LED's but I had no idea how
 
-I checked a few driver chips and the closest I could find was the Holteck HT16D33A which I found the I2C connection on pins 8 & 9 after probing with a logic analyzer but the data I could see being sent to this chip did not appear to match what was in datasheet.  
+I checked a few driver chips and the closest I could find was the Holteck HT16D33A which I found the I2C connection on pins 8 & 9 after probing with a logic analyzer but the data I could see being sent to this chip did not appear to match what was in datasheet and the power pins didn't seem to match the datasheet either.  
 
 See image F for a number of traces I found.
     Top image is what is sent on powering up the clock
@@ -30,7 +36,7 @@ I removed a few resistors to allow me to use an ESP32 to drive the main chip.
    For power see image C.  
 
 
-from the top image I found I could replicate it via ESP Home sending the following code
+from the top image (image F) I found I could replicate the power up screen which is at full brightness & all digits lit up via ESPHome the following code
 
             id(i2cdev).write_byte(0x12, 0x01);   
             id(i2cdev).write_byte(0x10, 0x0f); 
@@ -38,7 +44,7 @@ from the top image I found I could replicate it via ESP Home sending the followi
             id(i2cdev).write_bytes(0x00, { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff });           
             id(i2cdev).write_byte(0x12, 0x03);
 
-after that the format is
+after that the microcontroller just repeats the following every second 
 
               id(i2cdev).write_byte(0x10, 0x0f); 
               id(i2cdev).write_byte(0x11, 0x0f);
@@ -49,6 +55,9 @@ from this I just found the following 2 commands would be of use
 
              Command  0x10   Data 0xXX   Brightness,  seems to have few different levels between 0 & 15
              Command  0x00   Data  16 x 8bit bytes
+
+             Command 0x11 Data 0x0f  - not sure so I just copied it for now
+             Command 0x12 Data 0x03  - not sure so I just copied for now.  Possibly a command to update the led outputs?  
 
 
 after a few hours of messing around with the block of 16 bytes I came up with the following
@@ -132,6 +141,7 @@ NOT INVESTIGATED YET
         d) Light sensor  PH1 just under the temperature that looks like a blacked out LED
         e) Remote pads   just to the right of the light sensor,  looks like the un-labled pads to the left need to be populated.  probably just more 0 ohm resistors??
         f) Buttons
+        g) The microprocessor.   I suspect one of the standard cheap STC 8081 chinese microcontrollers that seem to be in everything these days.  
 
     Q4/Q5/Q6/Q7  - at the moment I've no idea what these are used for.  Possibly used by the LED driver??
 
