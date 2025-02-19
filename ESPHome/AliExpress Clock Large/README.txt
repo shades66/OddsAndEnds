@@ -73,34 +73,42 @@ time:
       - seconds: 0-59
         then:
           - lambda: !lambda |- 
+              //  The 2 arrays used to draw digits & the day of week starting from SUN
               byte digit [] = { 219,130,213,199,142,79,95,194,223,207};
               byte daw [] { 2,64,128,8,4,16,1 };
+              //  The main vars I'm interested in using on the clock.   the temp_den entry is for an external home assistant temperature sensor
               int c_minute=id(homeassistant_time).now().minute;
               int c_hour=id(homeassistant_time).now().hour;
               int c_temp=id(temp_den).state;
               int c_mon=id(homeassistant_time).now().month;
               int c_dom=id(homeassistant_time).now().day_of_month;
               int c_dow=id(homeassistant_time).now().day_of_week - 1;
+              // The main digits,  just units & tens for most of them
               byte min1=digit[c_minute % 10];
               byte min2=digit[c_minute / 10];
               byte hour1=digit[c_hour % 10];
               byte hour2=digit[c_hour / 10];
               byte temp1=digit[c_temp % 10];
               byte temp2=digit[c_temp / 10];  
+              // for the day field  bitwise OR with 0x20 to light up the M & D indicators
               byte dom1=digit[c_dom % 10] | 0x20;
               byte dom2=digit[c_dom / 10] | 0x20;
+              // Hack for day of week,  lights all days up in white apart from the current day in blue
               byte day1=0;
               byte day2=0;
               for (int a=0;a<7;a++) { if (a==c_dow) { day1=day1 | daw[a]; }  else { day2=day2 | daw[a]; } };
+              // hack to include the leading 1 on the month section from the right group.  starts with 4 to include the degress C symbol
               byte dots=4;
               byte mon1=digit[c_mon % 10] & 0xE7;
               dots=dots | (digit[c_mon % 10] & 0x18);
               if (c_mon>9) { mon1=mon1 | 0x18; };
+              // add the clock separator dots every other second
               if ((id(homeassistant_time).now().second % 2) ==1) { dots=dots+3; }
-              id(i2cdev).write_byte(0x10, id(bright_led).state); 
-              id(i2cdev).write_byte(0x11, 0x0f);
-              id(i2cdev).write_bytes(0x00, { mon1, dom1, dom2, min1, min2, min2, day1, day2, min1, hour2, dots , hour2, hour1, hour1, temp2, temp1 });           
-              id(i2cdev).write_byte(0x12, 0x03);
+              // Send all the I2C commands
+              id(i2cdev).write_byte(0x10, id(bright_led).state);  // Screen Brightness
+              id(i2cdev).write_byte(0x11, 0x0f);  // Not sure
+              id(i2cdev).write_bytes(0x00, { mon1, dom1, dom2, min1, min2, min2, day1, day2, min1, hour2, dots , hour2, hour1, hour1, temp2, temp1 });  // The main data
+              id(i2cdev).write_byte(0x12, 0x03);  // Not sure,  refresh display output ?
 
 luckily the bytes do seem to follow a fairly simple format.  the bytes min1,min2,hour1,hour2  (the main numeric digits mainly)  all are a single byte that encode the bits of the 2 segment,  the digit array at the top contains the values for digits 0-9
 
