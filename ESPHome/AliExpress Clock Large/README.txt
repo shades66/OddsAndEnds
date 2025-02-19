@@ -9,7 +9,7 @@ The description is
 
 This is a continuation of attempting to modify a cheap led clock from AliExpress to work via ESPHome for use in home assistant.  See the other clock up one directory for details of what I found there.
 
-I was expecting a similar PCB to the previous clock where it would be easy to identify the main pins in order to hack on an ESP32 chip to drive it.  Instead I found a pretty cheap one sided PCB with hundreds of SMD zero ohm resistors along with 2 chips in the centre which helpfully had all identification removed... The larger chip is what is driving the LED's but I had no idea how
+I was expecting a similar PCB to the previous clock where it would be easy to identify the main pins in order to hack on an ESP32 chip to drive it.  Instead I found a pretty cheap one sided PCB with hundreds of SMD zero ohm resistors which allow tracks to jump over each other without physical links, along with 2 chips in the centre which helpfully had all identification removed... The larger chip is what is driving the LED's but I had no idea how
 
 I checked a few driver chips and the closest I could find was the Holteck HT16D33A which I found the I2C connection on pins 8 & 9 after probing with a logic analyzer but the data I could see being sent to this chip did not appear to match what was in datasheet.  
 
@@ -17,6 +17,18 @@ See image F for a number of traces I found.
     Top image is what is sent on powering up the clock
     next 3 are just random ones taken to see any obvious difference
     last 3 are after adjusting the screen brightness
+
+I removed a few resistors to allow me to use an ESP32 to drive the main chip.
+
+   Image A shows the I2C pins.  
+         The 2 to the left are the I2C pullups which pull to 5 volts which I'm not sure the ESP32 would like
+         The 2 under the chip are what connect to the microcontroller
+   Image B shows the same pins but I've moved the resistors onto single pads.  Note I did this wrong on the photo, the 2 resistors i moved to the pads I soldered onto and on my final implementation moved to hang onto the bottom 2 pads.  The wired for CLK & DATA I attached to the pads you see the where 2 resistors are shown to be soldered under the chip. (hope that makes sense)
+
+   The 2 wires for CLK & DATA i then routed straight down and to the other side of the board where you will find some space to mount whatever ESP board you are using.  For my hack I used the ESP32-Pico-V2-MiniPICO (See in the ESP32Board section of my repo) I created which is taped to the back of the PCB with power being tapped off the capacitor on the back of the PCB near the DJ Jack and an antenna stuck to the rear of the plastic casing.
+
+   For power see image C.  
+
 
 from the top image I found I could replicate it via ESP Home sending the following code
 
@@ -40,6 +52,8 @@ from this I just found the following 2 commands would be of use
 
 
 after a few hours of messing around with the block of 16 bytes I came up with the following
+
+ See the ESPHOME YAML.txt file for the full code which includes the i2c & i2c_device setup definitions used by the following
 
 time:
   - platform: homeassistant
@@ -95,7 +109,7 @@ the main oddities are the month format where for some reason the 2nd digit doesn
 
 The day bytes use bit 5 (0x20) to control the D & M symbols
 
-Bytes 7 & 8  control mainly the Days of the week indicator.  Byte 7 controls the coloured LEDs  Byte 8 controls the white LEDs
+Bytes 7 & 8  control mainly the Days of the week indicator.  Byte 7 controls the coloured LEDs  Byte 8 controls the white LEDs. The DOW array in the code is encoded to select the relevant DAY based on 0-7 from the ESPHome day_of_week variable. 
 
    bit 0  - SAT
    bit 1  - SUN
