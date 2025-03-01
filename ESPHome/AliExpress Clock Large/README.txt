@@ -143,15 +143,17 @@ NOT INVESTIGATED YET
 
     As this is just splitting the microprocessor from the LED driver the on board functions of the clock are continuing to work behind the scenes. I believe the following parts are used directly by this microprocessor so are unavailable in home assistant
 
-        a) Microphone   (Not exactly sure what this is used for,  I saw mention of voice control but no idea how this works)
-        b) Buzzer for alarm
-        c) Temperature sensor  (this appears to be R23 in the squared off section within the hours digits
-        d) Light sensor  PH1 just under the temperature that looks like a blacked out LED
-        e) Remote pads   just to the right of the light sensor,  looks like the un-labled pads to the left need to be populated.  probably just more 0 ohm resistors??
-        f) Buttons
+        a) Microphone   (Not exactly sure what this is used for,  I saw mention of voice control but no idea how this works).   Detects loud noise/clapping to trigger the display when run from battery.   see Q6/Q7 & processor
+        b) Buzzer for alarm.    One side connected direct to VCC,  other side to microprocessor pin 11.  Driven by PWN.  I replaced with a normal buzzer which just makes a noise when enabled.
+        c) Temperature sensor  (this appears to be R23 in the squared off section within the hours digits - See pin 2 of processor
+        d) Light sensor  PH1 just under the temperature that looks like a blacked out LED - See pin 1 of processor
+        e) Remote pads   just to the right of the light sensor,  looks like the un-labled pads to the left need to be populated.  probably just more 0 ohm resistors??  connects to pin 12.
+        f) Buttons  see below
         g) The microprocessor.   I suspect one of the standard cheap STC 8081 chinese microcontrollers that seem to be in everything these days.  UPDATE See below
 
     Q4/Q5/Q6/Q7  - at the moment I've no idea what these are used for.  Possibly used by the LED driver??
+      Q4/Q5  control VCC into the LED driver.  controlled by pin 8 on the processor
+      Q6/Q7  seem to be used an a primitive amp for the microphone into pin 23 on the microphone. 
 
 Processor pins
 --------------
