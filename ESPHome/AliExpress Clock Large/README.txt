@@ -19,6 +19,8 @@ I was expecting a similar PCB to the previous clock where it would be easy to id
 
 I checked a few driver chips and the closest I could find was the Holteck HT16D33A which I found the I2C connection on pins 8 & 9 after probing with a logic analyzer but the data I could see being sent to this chip did not appear to match what was in datasheet and the power pins didn't seem to match the datasheet either.  
 
+***  I SUSPECT THE DRIVER CHIP IS THE TM1640.   SEE Datasheet in this repo. ******
+
 See image F for a number of traces I found.
     Top image is what is sent on powering up the clock
     next 3 are just random ones taken to see any obvious difference
