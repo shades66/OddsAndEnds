@@ -149,7 +149,59 @@ NOT INVESTIGATED YET
         d) Light sensor  PH1 just under the temperature that looks like a blacked out LED
         e) Remote pads   just to the right of the light sensor,  looks like the un-labled pads to the left need to be populated.  probably just more 0 ohm resistors??
         f) Buttons
-        g) The microprocessor.   I suspect one of the standard cheap STC 8081 chinese microcontrollers that seem to be in everything these days.  
+        g) The microprocessor.   I suspect one of the standard cheap STC 8081 chinese microcontrollers that seem to be in everything these days.  UPDATE See below
 
     Q4/Q5/Q6/Q7  - at the moment I've no idea what these are used for.  Possibly used by the LED driver??
 
+Processor pins
+--------------
+
+ 1.  Light sensor (analog?   VCC->lightsensor->signal->R7/1K->pin1 ->R8->GND
+ 2.  Temp sensor (analog)    VCC->PTC-> R5 ->pin2  + R5->R6->GND 
+ 3.  Programming C pad
+ 4.  Programming D pad
+ 5.  I2C to led driver
+ 6.  I2C to led driver
+ 7.  not connected?
+ 8.  Power enable for LED driver  ( drives Q4/Q5 circuit)
+ 9.  GND
+10.  5v
+11.  Buzzer
+12.  IR.  Note resistors to the IR receiver not populated
+
+13.  not connected
+14.  clock xtal
+15.  clock xtal
+16.  not connected
+17.  not connected
+18.  not connected
+19.  not connected
+20.  not connected
+21.  not connected
+22.  Plugged in signal ( connected between R1 & R2)
+23.  Microphone  (outputs from Q6 & Q7 circuit)
+24.  Button  (analog in)
+
+Buttons
+--------
+ VCC   ->   R9/10k -> ALARM button -> pin 20
+ VCC   ->   R12/47K -> MINUS button -> pin 20
+ VCC   ->   R11/330K  -> PLUS button -> pin 20
+ VCC   ->   R10/150K  -> SET button  -> pin 20
+      pin 20 connected via R13/47k to GND
+
+Voltages (from online calculator)
+
+AL = 4.123v
+-  = 2.5v
++  = 0.6v
+SET= 1.69v
+
+changing R13 to a 15K should give the following suitable for ESP32
+
+AL = 3v
+-  = 1.21v
++  = .215v
+SET= .455v
+
+only issue with the above is powered from a USB adapter it's still not a clean 5v feed, even just flashing the time separator dots between HH &MM appears to cause fluctuations/flicker occasionally
